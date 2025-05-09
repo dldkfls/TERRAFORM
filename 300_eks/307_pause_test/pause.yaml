@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummy-pod
+  namespace: kube-system
+spec:
+  replicas: 2  # 항상 2개 이상의 Pod을 유지
+  selector:
+    matchLabels:
+      app: dummy
+  template:
+    metadata:
+      labels:
+        app: dummy
+    spec:
+      containers:
+        - name: pause
+          image: k8s.gcr.io/pause:3.5
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi

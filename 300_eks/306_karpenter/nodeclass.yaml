@@ -1,0 +1,16 @@
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass
+metadata:
+  name: nodeclass
+spec:
+  role: "KarpenterNodeRole-performance-eks" # replace with your cluster name
+  amiSelectorTerms:
+    - alias: "al2023@v20250317"
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery2: "alin-test-cluster-132" # replace with your cluster name
+  securityGroupSelectorTerms:
+    - tags:
+        karpenter.sh/discovery2: "alin-test-cluster-132" # replace with your cluster name
+  tags:
+    Name: alin-eks-node

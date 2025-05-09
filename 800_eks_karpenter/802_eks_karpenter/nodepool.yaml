@@ -1,0 +1,60 @@
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: nodepool
+spec:
+  template:
+    spec:
+      requirements:
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+        - key: kubernetes.io/os
+          operator: In
+          values: ["linux"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["on-demand"]
+        - key: karpenter.k8s.aws/instance-category
+          operator: In
+          values: ["c"]
+        - key: topology.kubernetes.io/zone
+          operator: In
+          values:
+            - ap-northeast-2a
+            - ap-northeast-2c
+        - key: karpenter.k8s.aws/instance-family
+          operator: In
+          values:
+            - c5
+        - key: karpenter.k8s.aws/instance-size
+          operator: In
+          values: ["xlarge"]
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: nodeclass
+      expireAfter: 720h  # 30 * 24h = 720h
+  limits:
+    cpu: 8
+    memory: 16Gi
+    #disruption:
+    #consolidationPolicy: WhenEmptyOrUnderutilized
+    #consolidateAfter: 1m
+---
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass
+metadata:
+  name: nodeclass
+spec:
+  role: "KarpenterNodeRole-performance-eks" # replace with your cluster name
+  amiSelectorTerms:
+    - alias: "al2023@v20250317"
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery3: "alin-karpenter-cluster-132" # replace with your cluster name
+  securityGroupSelectorTerms:
+    - tags:
+        aws:eks:cluster-name: "alin-karpenter-cluster-132" # replace with your cluster name
+  tags:
+    Name: alin-karpenter-eks-node
